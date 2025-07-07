@@ -7,5 +7,7 @@ namespace Pictura.Api.Dtos
         [Required(ErrorMessage = "Image URL is required.")]
         [RegularExpression("https?://.+", ErrorMessage = "Invalid URL format. Must start with http:// or https://.")]
         public required string Url { get; init; }
+        
+        public required HashSet<string> Tags { get; init; } = new HashSet<string>();
     }
 }

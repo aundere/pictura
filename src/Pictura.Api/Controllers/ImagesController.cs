@@ -9,6 +9,8 @@ namespace Pictura.Api.Controllers
     [Route("[controller]")]
     public class ImagesController
     {
+        private readonly Random _random = new Random();
+        
         private readonly ImagesStorage _imagesStorage;
         private readonly ILogger<ImagesController> _logger;
 
@@ -21,9 +23,14 @@ namespace Pictura.Api.Controllers
         [HttpGet]
         public ImagesResponseDto Get([FromQuery] ImagesQueryDto queryDto)
         {
-            // TODO: Implement search functionality based on query parameters
+            var queryTags = queryDto.Tags.ToHashSet();
             
-            return new ImagesResponseDto { Images = this._imagesStorage.Images.Values };
+            var images = this._imagesStorage.Images.Values
+                .Where(x => !queryTags.Except(x.Tags).Any()) // Filter images by tags
+                .OrderBy(_ => this._random.Next()) // Randomize order
+                .Take(queryDto.Limit); // Limit the number of images returned
+            
+            return new ImagesResponseDto { Images = images };
         }
 
         [HttpPost]
@@ -31,8 +38,11 @@ namespace Pictura.Api.Controllers
         {
             this._imagesStorage.AddImage(new ImageEntity
             {
-                Url = request.Url
+                Url = request.Url,
+                Tags = request.Tags
             });
+            
+            this._logger.LogInformation("Image created: {Url}", request.Url);
         }
     }
 }
