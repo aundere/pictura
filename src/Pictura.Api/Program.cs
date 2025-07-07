@@ -1,3 +1,5 @@
+using Pictura.Api.Services;
+
 namespace Pictura.Api
 {
     internal static class Program
@@ -8,6 +10,8 @@ namespace Pictura.Api
 
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
+
+            builder.Services.AddSingleton<ImagesStorage>();
             
             var app = builder.Build();
 
