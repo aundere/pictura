@@ -12,5 +12,11 @@ namespace Pictura.Api.Services
         {
             this._images[image.Id] = image;
         }
+
+        public IEnumerable<ImageEntity> FindByTags(IEnumerable<string> tags)
+        {
+            var set = tags.ToHashSet();
+            return this._images.Values.Where(x => !set.Except(x.Tags).Any());
+        }
     }
 }

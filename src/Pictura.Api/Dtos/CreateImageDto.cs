@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pictura.Api.Dtos
 {
-    public class CreateImageDto
+    public record CreateImageDto
     {
         [Required(ErrorMessage = "Image URL is required.")]
         [RegularExpression("https?://.+", ErrorMessage = "Invalid URL format. Must start with http:// or https://.")]

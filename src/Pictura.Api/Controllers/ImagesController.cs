@@ -3,6 +3,8 @@ using Pictura.Api.Dtos;
 using Pictura.Api.Entities;
 using Pictura.Api.Services;
 
+// ReSharper disable UnusedMember.Global
+
 namespace Pictura.Api.Controllers
 {
     [ApiController]
@@ -23,11 +25,9 @@ namespace Pictura.Api.Controllers
         [HttpGet]
         public ImagesResponseDto Get([FromQuery] ImagesQueryDto queryDto)
         {
-            var queryTags = queryDto.Tags.ToHashSet();
-            
-            var images = this._imagesStorage.Images.Values
-                .Where(x => !queryTags.Except(x.Tags).Any()) // Filter images by tags
-                .OrderBy(_ => this._random.Next()) // Randomize order
+            var images = this._imagesStorage
+                .FindByTags(queryDto.Tags) // Filter images by tags
+                .Skip(queryDto.Offset) // Apply offset for pagination
                 .Take(queryDto.Limit); // Limit the number of images returned
             
             return new ImagesResponseDto { Images = images };
@@ -43,6 +43,22 @@ namespace Pictura.Api.Controllers
             });
             
             this._logger.LogInformation("Image created: {Url}", request.Url);
+        }
+        
+        [HttpGet("random")]
+        public IResult GetRandomImage([FromQuery] RandomImageQueryDto queryDto)
+        {
+            var images = this._imagesStorage
+                .FindByTags(queryDto.Tags) // Filter images by tags
+                .ToList();
+
+            if (images.Count == 0)
+            {
+                return Results.NotFound();
+            }
+            
+            var randomIndex = this._random.Next(0, images.Count);
+            return Results.Ok(images.ElementAt(randomIndex));
         }
     }
 }
