@@ -4,7 +4,7 @@ namespace Pictura.Api.Entities
     {
         public Guid Id { get; init; } = Guid.NewGuid();
         
-        public HashSet<string> Tags { get; init; } = new HashSet<string>();
+        public HashSet<string> Tags { get; init; } = [];
         
         public required string Url { get; init; }
         

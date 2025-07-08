@@ -39,7 +39,7 @@ namespace Pictura.Api.Controllers
             this._imagesStorage.AddImage(new ImageEntity
             {
                 Url = request.Url,
-                Tags = request.Tags
+                Tags = request.Tags.ToHashSet()
             });
             
             this._logger.LogInformation("Image created: {Url}", request.Url);
