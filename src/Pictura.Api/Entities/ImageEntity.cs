@@ -2,11 +2,11 @@ namespace Pictura.Api.Entities
 {
     public record ImageEntity
     {
-        public Guid Id { get; init; } = Guid.NewGuid();
+        public int Id { get; init; }
+
+        public string Url { get; init; } = string.Empty;
         
-        public HashSet<string> Tags { get; init; } = [];
-        
-        public required string Url { get; init; }
+        public List<TagEntity> Tags { get; init; } = [];
         
     }
 }

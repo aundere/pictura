@@ -11,54 +11,42 @@ namespace Pictura.Api.Controllers
     [Route("[controller]")]
     public class ImagesController
     {
-        private readonly Random _random = new Random();
-        
-        private readonly ImagesStorage _imagesStorage;
+        private readonly ImageService _imageService;
         private readonly ILogger<ImagesController> _logger;
 
-        public ImagesController(ImagesStorage imagesStorage, ILogger<ImagesController> logger)
+        public ImagesController(ImageService imageService, ILogger<ImagesController> logger)
         {
-            this._imagesStorage = imagesStorage;
+            this._imageService = imageService;
             this._logger = logger;
         }
         
         [HttpGet]
-        public ImagesResponseDto Get([FromQuery] ImagesQueryDto queryDto)
+        public async Task<ImagesResponseDto> Get([FromQuery] ImagesQueryDto queryDto)
         {
-            var images = this._imagesStorage
-                .FindByTags(queryDto.Tags) // Filter images by tags
-                .Skip(queryDto.Offset) // Apply offset for pagination
-                .Take(queryDto.Limit); // Limit the number of images returned
+            var images = await this._imageService
+                .GetImagesByTagsAsync(queryDto.Offset, queryDto.Limit, queryDto.Tags);
+
+            var imagesDto = images.Select(ImageResponseDto.FromImageEntity);
             
-            return new ImagesResponseDto { Images = images };
+            return new ImagesResponseDto { Images = imagesDto };
         }
 
         [HttpPost]
-        public void Post([FromBody] CreateImageDto request)
+        public async Task<ImageResponseDto> Post([FromBody] CreateImageDto request)
         {
-            this._imagesStorage.AddImage(new ImageEntity
-            {
-                Url = request.Url,
-                Tags = request.Tags.ToHashSet()
-            });
+            var image = await this._imageService.CreateImageAsync(request.Url, request.Tags);
             
             this._logger.LogInformation("Image created: {Url}", request.Url);
+
+            return ImageResponseDto.FromImageEntity(image);
         }
         
         [HttpGet("random")]
-        public IResult GetRandomImage([FromQuery] RandomImageQueryDto queryDto)
+        public async Task<IResult> GetRandomImage([FromQuery] RandomImageQueryDto queryDto)
         {
-            var images = this._imagesStorage
-                .FindByTags(queryDto.Tags) // Filter images by tags
-                .ToList();
-
-            if (images.Count == 0)
-            {
-                return Results.NotFound();
-            }
+            var image = await this._imageService.GetRandomImageAsync(queryDto.Tags);
             
-            var randomIndex = this._random.Next(0, images.Count);
-            return Results.Ok(images.ElementAt(randomIndex));
+            return image is null ? Results.NotFound() : Results.Ok(ImageResponseDto.FromImageEntity(image));
         }
     }
 }
