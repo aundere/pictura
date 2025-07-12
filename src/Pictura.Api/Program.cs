@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Pictura.Api.Data;
+using Pictura.Api.Infrastructure.Options;
 using Pictura.Api.Services;
 
 namespace Pictura.Api
@@ -9,7 +10,10 @@ namespace Pictura.Api
         private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            
+            // Add configuration
+            builder.Services.Configure<ApiAuthOptions>(builder.Configuration.GetSection("ApiAuth"));
+            
             // Add services to the container
             builder.Services.AddControllers();
             builder.Services.AddProblemDetails();

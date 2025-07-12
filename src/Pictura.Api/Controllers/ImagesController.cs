@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Pictura.Api.Dtos;
+using Pictura.Api.Infrastructure.Filters;
 using Pictura.Api.Services;
 
 // ReSharper disable UnusedMember.Global
@@ -8,6 +9,7 @@ using Pictura.Api.Services;
 namespace Pictura.Api.Controllers
 {
     [ApiController]
+    [ApiKeyAuthorize]
     [Route("[controller]")]
     public class ImagesController
     {
