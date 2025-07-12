@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Pictura.Api.Dtos;
-using Pictura.Api.Entities;
 using Pictura.Api.Services;
 
 // ReSharper disable UnusedMember.Global
@@ -30,7 +30,7 @@ namespace Pictura.Api.Controllers
             
             return new ImagesResponseDto { Images = imagesDto };
         }
-
+        
         [HttpPost]
         public async Task<ImageResponseDto> Post([FromBody] CreateImageDto request)
         {
@@ -39,6 +39,21 @@ namespace Pictura.Api.Controllers
             this._logger.LogInformation("Image created: {Url}", request.Url);
 
             return ImageResponseDto.FromImageEntity(image);
+        }
+        
+        [HttpDelete("{id}")]
+        public async Task<IResult> Delete([FromRoute] [Range(0, int.MaxValue, ErrorMessage = "Id must be a non-negative integer.")] int id)
+        {
+            var deleted = await this._imageService.DeleteImageAsync(id);
+            
+            if (!deleted)
+            {
+                return Results.NotFound();
+            }
+
+            this._logger.LogInformation("Image deleted: {Id}", id);
+            
+            return Results.NoContent();
         }
         
         [HttpGet("random")]

@@ -39,6 +39,21 @@ namespace Pictura.Api.Services
             return image;
         }
         
+        public async Task<bool> DeleteImageAsync(int id)
+        {
+            var image = await this._db.Images.FindAsync(id);
+
+            if (image is null)
+            {
+                return false;
+            }
+
+            this._db.Images.Remove(image);
+            await this._db.SaveChangesAsync();
+
+            return true;
+        }
+        
         public async Task<IEnumerable<ImageEntity>> GetImagesByTagsAsync(int from, int limit, IEnumerable<string> tags)
         {
             return await this._db.Images
