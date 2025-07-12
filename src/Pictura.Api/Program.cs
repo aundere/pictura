@@ -12,6 +12,7 @@ namespace Pictura.Api
 
             // Add services to the container
             builder.Services.AddControllers();
+            builder.Services.AddProblemDetails();
             builder.Services.AddOpenApi();
 
             builder.Services.AddSqlite<AppDbContext>("Data Source=pictura.db");;

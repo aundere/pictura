@@ -41,27 +41,43 @@ namespace Pictura.Api.Controllers
             return ImageResponseDto.FromImageEntity(image);
         }
         
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IResult> Delete([FromRoute] [Range(0, int.MaxValue, ErrorMessage = "Id must be a non-negative integer.")] int id)
         {
             var deleted = await this._imageService.DeleteImageAsync(id);
-            
+
             if (!deleted)
             {
-                return Results.NotFound();
+                return Results.Problem(new ProblemDetails
+                {
+                    Title = "Image not found",
+                    Status = 404,
+                    Detail = "No image found matching the specified id."
+                });
             }
-
+            
             this._logger.LogInformation("Image deleted: {Id}", id);
             
             return Results.NoContent();
+
         }
         
         [HttpGet("random")]
         public async Task<IResult> GetRandomImage([FromQuery] RandomImageQueryDto queryDto)
         {
             var image = await this._imageService.GetRandomImageAsync(queryDto.Tags);
-            
-            return image is null ? Results.NotFound() : Results.Ok(ImageResponseDto.FromImageEntity(image));
+
+            if (image is not null)
+            {
+                return Results.Ok(ImageResponseDto.FromImageEntity(image));
+            }
+
+            return Results.Problem(new ProblemDetails
+            {
+                Title = "Image not found",
+                Status = 404,
+                Detail = "No image found matching the specified tags."
+            });
         }
     }
 }
