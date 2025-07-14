@@ -29,6 +29,8 @@ To use the Pictura API, you can send HTTP requests to the endpoints. The API sup
   comma-separated image tags.
 - **Delete an image**: Send a DELETE request to `/images/{id}` where `{id}` is the ID of the image to delete.
 
+### Authentication
+
 The Pictura API also supports authentication using a custom header `X-Api-Key`. You can set the API key in the `appsettings.json`:
 
 ```json
@@ -42,6 +44,19 @@ The Pictura API also supports authentication using a custom header `X-Api-Key`. 
 
 The `AuthEndpoints` can be set to `All` to require authentication for all endpoints, `Modifying` to require
 authentication only for modifying endpoints (uploading and deleting images), or `None` to disable authentication.
+
+### Database Configuration
+
+The Pictura API uses SQLite as the database. You can change the database provider and connection string in the `appsettings.json`:
+
+```json
+{
+    "Database": {
+        "Type": "Sqlite",
+        "ConnectionString": "Data Source=pictura.db"
+    }
+}
+```
 
 ## License
 
