@@ -18,9 +18,24 @@ namespace Pictura.Api
             builder.Services.AddControllers();
             builder.Services.AddProblemDetails();
             builder.Services.AddOpenApi();
-
-            builder.Services.AddSqlite<AppDbContext>("Data Source=pictura.db");;
+            
             builder.Services.AddTransient<ImageService>();
+            
+            // Configure Entity Framework Core with the database options
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            {
+                var config = builder.Configuration.GetSection("Database").Get<DatabaseOptions>() 
+                    ?? new DatabaseOptions();
+
+                var connectionString = config.ConnectionString;
+
+                if (config.Type == DatabaseOptions.DatabaseType.Sqlite)
+                {
+                    options.UseSqlite(connectionString);
+                }
+                
+                // Other database types can be added here in the future
+            });
             
             var app = builder.Build();
             
