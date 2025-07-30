@@ -5,7 +5,7 @@ using Pictura.Api.Services;
 
 namespace Pictura.Api
 {
-    internal static class Program
+    public class Program
     {
         private static void Main(string[] args)
         {

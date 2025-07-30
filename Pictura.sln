@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pictura.Api", "src\Pictura.Api\Pictura.Api.csproj", "{7888F795-5227-45A7-B5BE-8DA410F2A6ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pictura.Api.Tests", "src\Pictura.Api.Tests\Pictura.Api.Tests.csproj", "{4BC1E972-334E-4676-9FA0-10624BC5B1A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{7888F795-5227-45A7-B5BE-8DA410F2A6ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7888F795-5227-45A7-B5BE-8DA410F2A6ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7888F795-5227-45A7-B5BE-8DA410F2A6ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BC1E972-334E-4676-9FA0-10624BC5B1A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BC1E972-334E-4676-9FA0-10624BC5B1A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BC1E972-334E-4676-9FA0-10624BC5B1A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BC1E972-334E-4676-9FA0-10624BC5B1A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
