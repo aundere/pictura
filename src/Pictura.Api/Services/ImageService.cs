@@ -59,6 +59,7 @@ namespace Pictura.Api.Services
             return await this._db.Images
                 .Include(x => x.Tags)
                 .Where(x => !tags.Except(x.Tags.Select(t => t.Name)).Any())
+                .OrderBy(x => x.Id)
                 .Skip(from)
                 .Take(limit)
                 .ToListAsync();

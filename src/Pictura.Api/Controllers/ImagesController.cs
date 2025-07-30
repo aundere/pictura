@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Pictura.Api.Dtos;
 using Pictura.Api.Infrastructure.Filters;
@@ -50,10 +51,9 @@ namespace Pictura.Api.Controllers
 
             if (!deleted)
             {
-                return Results.Problem(new ProblemDetails
+                return Results.NotFound(new ProblemDetails
                 {
                     Title = "Image not found",
-                    Status = 404,
                     Detail = "No image found matching the specified id."
                 });
             }
@@ -74,10 +74,9 @@ namespace Pictura.Api.Controllers
                 return Results.Ok(ImageResponseDto.FromImageEntity(image));
             }
 
-            return Results.Problem(new ProblemDetails
+            return Results.NotFound(new ProblemDetails
             {
                 Title = "Image not found",
-                Status = 404,
                 Detail = "No image found matching the specified tags."
             });
         }
