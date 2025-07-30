@@ -7,34 +7,47 @@ namespace Pictura.Api.Services
     public class ImageService
     {
         private readonly AppDbContext _db;
+        private readonly ILogger<ImageService> _logger;
 
-        public ImageService(AppDbContext db)
+        public ImageService(AppDbContext db, ILogger<ImageService> logger)
         {
             this._db = db;
+            this._logger = logger;
         }
-
+        
         public async Task<ImageEntity> CreateImageAsync(string url, IEnumerable<string> tags)
         {
-            var tagEntities = await this._db.Tags
-                .Where(t => tags.Contains(t.Name))
+            var tagList = tags.ToList();
+            
+            var existingTags = await this._db.Tags
+                .Where(t => tagList.Contains(t.Name))
                 .ToListAsync();
 
-            var newTags = tags
-                .Where(x => tagEntities.All(t => t.Name != x))
-                .Select(x => new TagEntity { Id = 0, Name = x })
+            var newTags = tagList
+                .Except(existingTags.Select(t => t.Name), StringComparer.OrdinalIgnoreCase)
+                .Select(name => new TagEntity { Name = name})
                 .ToList();
-            
-            var allTags = tagEntities.Concat(newTags).ToList();
-            
-            var image = new ImageEntity
+
+            if (newTags.Count != 0)
             {
-                Id = 0,
-                Url = url,
-                Tags = allTags
-            };
+                this._db.Tags.AddRange(newTags);
+                await this._db.SaveChangesAsync();
+                
+                this._logger.LogInformation("Added {NewTagCount} new tags", newTags.Count);
+            }
+            else
+            {
+                this._logger.LogInformation("No new tags to add, using existing tags");
+            }
+
+            var allTags = existingTags.Concat(newTags).ToList();
+            
+            var image = new ImageEntity { Url = url, Tags = allTags };
             
             this._db.Images.Add(image);
             await this._db.SaveChangesAsync();
+            
+            this._logger.LogInformation("Image created with ID {ImageId} and URL {ImageUrl}", image.Id, image.Url);
 
             return image;
         }
@@ -50,15 +63,26 @@ namespace Pictura.Api.Services
 
             this._db.Images.Remove(image);
             await this._db.SaveChangesAsync();
+            
+            this._logger.LogInformation("Image with ID {ImageId} deleted", id);
 
             return true;
         }
         
         public async Task<IEnumerable<ImageEntity>> GetImagesByTagsAsync(int from, int limit, IEnumerable<string> tags)
         {
-            return await this._db.Images
+            var tagList = tags.ToList();
+            
+            var query = this._db.Images
                 .Include(x => x.Tags)
-                .Where(x => !tags.Except(x.Tags.Select(t => t.Name)).Any())
+                .AsQueryable();
+            
+            if (tagList.Count > 0)
+            {
+                query = query.Where(x => tagList.All(r => x.Tags.Any(t => r == t.Name)));
+            }
+            
+            return await query
                 .OrderBy(x => x.Id)
                 .Skip(from)
                 .Take(limit)
@@ -67,9 +91,18 @@ namespace Pictura.Api.Services
         
         public async Task<ImageEntity?> GetRandomImageAsync(IEnumerable<string> tags)
         {
-            return await this._db.Images
+            var tagList = tags.ToList();
+
+            var query = this._db.Images
                 .Include(x => x.Tags)
-                .Where(x => !tags.Except(x.Tags.Select(t => t.Name)).Any())
+                .AsQueryable();
+            
+            if (tagList.Count > 0)
+            {
+                query = query.Where(x => tagList.All(r => x.Tags.Any(t => r == t.Name)));
+            }
+            
+            return await query
                 .OrderBy(_ => EF.Functions.Random())
                 .FirstOrDefaultAsync();
         }
