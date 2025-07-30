@@ -1,0 +1,39 @@
+services:
+    api:
+        # Image configuration
+        container_name: pictura-api
+        
+        # Security options
+        read_only: true
+        cap_drop:
+            -   ALL
+        security_opt:
+            -   no-new-privileges:true
+        user: appuser
+        
+        # Restart policy
+        restart: always
+        
+        # Build configuration
+        build:
+            context: src/Pictura.Api
+            dockerfile: Dockerfile
+        
+        # Environment variables
+        environment:
+                # ASP.NET Core environment settings
+            -   ASPNETCORE_ENVIRONMENT=Production
+            -   ASPNETCORE_URLS=http://0.0.0.0:80
+            -   DOTNET_RUNNING_IN_CONTAINER=true
+            -   DOTNET_USE_POLLING_FILE_WATCHER=true
+            -   DOTNET_CLI_TELEMETRY_OPTOUT=1
+                # Database connection settings
+            -   Database__Type=Sqlite
+            -   Database__ConnectionString=Data Source=/app/data/pictura.db
+        
+        # Volume configuration
+        volumes:
+            -   ./data:/app/data
+            
+        ports:
+            -   "80:80"

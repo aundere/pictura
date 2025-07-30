@@ -4,7 +4,7 @@ Pictura is a API for storing and retrieving images. It provides endpoints for cr
 retrieving images by tags, and deleting images. The API is built using ASP.NET Core and Entity Framework Core,
 and it uses SQLite as the database.
 
-## Installation
+## Running
 
 To install Pictura, clone the repository, install the dependencies, and publish the project:
 

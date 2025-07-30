@@ -1,0 +1,19 @@
+# Ignore build artifacts and temporary files
+bin/
+obj/
+out/
+
+# Ignore user-specific files
+.vscode/
+.idea/
+*.db*
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore development tools and configurations
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
