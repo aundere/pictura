@@ -6,16 +6,48 @@ and it uses SQLite as the database.
 
 ## Running
 
-To install Pictura, clone the repository, install the dependencies, and publish the project:
+To run Pictura, clone the repository:
 
 ```bash
-git clone https://github.com/aundere/pictura.git && cd pictura && dotnet publish -c Release -o publish
+git clone https://github.com/aundere/pictura.git
 ```
 
-The project will be published to the `publish` directory. You can then run the API using the following command:
+### Running with Dotnet CLI
+
+To run Pictura using the .NET CLI, you need to have the .NET SDK installed on your machine. You can download it from the [.NET website](https://dotnet.microsoft.com/download).
+
+Publish the project using the following command:
 
 ```bash
-dotnet publish/pictura.dll
+dotnet publish -c Release -o publish
+```
+
+Then, the `publish` directory will be created with the published files. You can run the API using the following command:
+
+```bash
+dotnet Pictura.Api.dll
+```
+
+### Running with Docker
+
+Build the Docker image using the following command:
+
+```bash
+docker build -t pictura-api ./src/Pictura.Api
+```
+
+Then, run the Docker container using the following command:
+
+```bash
+docker run -d -p 80:80 pictura-api
+```
+
+### Running with Docker Compose
+
+Just run the following command to build and run the Docker container:
+
+```bash
+docker compose up --build
 ```
 
 ## Usage
