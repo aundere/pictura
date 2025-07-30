@@ -89,6 +89,13 @@ namespace Pictura.Api.Services
                 .ToListAsync();
         }
         
+        public async Task<ImageEntity?> GetImageByIdAsync(int id)
+        {
+            return await this._db.Images
+                .Include(x => x.Tags)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+        
         public async Task<ImageEntity?> GetRandomImageAsync(IEnumerable<string> tags)
         {
             var tagList = tags.ToList();

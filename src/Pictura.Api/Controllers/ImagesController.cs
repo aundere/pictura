@@ -28,7 +28,18 @@ namespace Pictura.Api.Controllers
             
             return this.Ok(new ImagesResponseDto { Images = imagesDto });
         }
-        
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<ImageResponseDto>> GetById(
+            [FromRoute] [Range(0, int.MaxValue, ErrorMessage = "Id must be a non-negative integer.")] int id)
+        {
+            var image = await this._imageService.GetImageByIdAsync(id);
+            
+            return image is not null
+                ? this.Ok(ImageResponseDto.FromImageEntity(image))
+                : this.NotFound();
+        }
+
         [HttpPost]
         public async Task<ImageResponseDto> Post([FromBody] CreateImageDto request)
         {
