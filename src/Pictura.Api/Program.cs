@@ -14,14 +14,14 @@ namespace Pictura.Api
             // Add configuration
             builder.Services.Configure<ApiAuthOptions>(builder.Configuration.GetSection("ApiAuth"));
             
-            // Add services to the container
+            // Add services
             builder.Services.AddControllers();
             builder.Services.AddProblemDetails();
             builder.Services.AddOpenApi();
             
             builder.Services.AddTransient<ImageService>();
             
-            // Configure Entity Framework Core with the database options
+            // Configure Entity Framework Core
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 var config = builder.Configuration.GetSection("Database").Get<DatabaseOptions>() 
