@@ -32,7 +32,7 @@ jobs:
           run: dotnet test --configuration Release --no-build --verbosity normal
           
         - name: Publish app
-          run: dotnet publish src/Pictura.API --configuration Release --no-restore --output ./publish
+          run: dotnet publish src/Pictura.Api --configuration Release --no-restore --output ./publish
             
         - name: Upload artifacts
           uses: actions/upload-artifact@v4
