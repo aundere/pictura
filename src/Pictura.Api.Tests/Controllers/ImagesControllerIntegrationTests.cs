@@ -54,7 +54,7 @@ namespace Pictura.Api.Tests.Controllers
             var expectedJson = JToken.Parse($@"{{
                 ""id"": {imageId},
                 ""url"": ""example.com"",
-                ""tags"": [ ""test"" ]
+                ""tags"": [ ""test"", ""tag"" ]
             }}");
 
             actualJson.Should().BeEquivalentTo(expectedJson);
@@ -108,6 +108,36 @@ namespace Pictura.Api.Tests.Controllers
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        }
+        
+        [Fact]
+        public async Task GetRandomImage_ReturnsRandomImage_WhenImagesExist()
+        {
+            // Arrange
+            this._factory.SeedData(this._factory.Services);
+            
+            // Act
+            var response = await this._client.GetAsync("/images/random?tags=test");
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var actualJson = JToken.Parse(content);
+            actualJson.Should().HaveCount(3); // id, url, tags
+        }
+
+        [Fact]
+        public async Task GetRandomImage_ReturnsNotFound_WhenNoImagesMatchTags()
+        {
+            // Arrange
+            this._factory.SeedData(this._factory.Services);
+
+            // Act
+            var response = await this._client.GetAsync("/images/random?tags=nonexistent");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }

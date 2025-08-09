@@ -64,6 +64,10 @@ namespace Pictura.Api.Tests.Infrastructure
                     new TagEntity
                     {
                         Name = "test"
+                    },
+                    new TagEntity
+                    {
+                        Name = "tag"
                     }
                 ]
             });

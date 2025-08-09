@@ -48,6 +48,13 @@ namespace Pictura.Api.Services
             return existingTags.Concat(newTags).ToList();
         }
         
+        public async Task<ImageEntity?> GetImageByIdAsync(int id)
+        {
+            return await this._db.Images
+                .Include(x => x.Tags)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+        
         public async Task<ImageEntity> CreateImageAsync(string url, IList<string> tags)
         {
             var tagEntities = await this.GetOrCreateTagsAsync(tags);
@@ -92,13 +99,6 @@ namespace Pictura.Api.Services
                 .Skip(from)
                 .Take(limit)
                 .ToListAsync();
-        }
-        
-        public async Task<ImageEntity?> GetImageByIdAsync(int id)
-        {
-            return await this._db.Images
-                .Include(x => x.Tags)
-                .FirstOrDefaultAsync(x => x.Id == id);
         }
         
         public async Task<ImageEntity?> GetRandomImageAsync(IList<string> tags)
