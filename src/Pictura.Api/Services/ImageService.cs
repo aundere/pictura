@@ -1,4 +1,3 @@
-using System.Collections;
 using Microsoft.EntityFrameworkCore;
 using Pictura.Api.Data;
 using Pictura.Api.Entities;
@@ -109,9 +108,13 @@ namespace Pictura.Api.Services
             
             query = this.ApplyTagFilter(query, tags);
             
+#pragma warning disable EntityFramework.ClientSideDbFunctionCall // false positive warning (trust me)
+            
             return await query
                 .OrderBy(_ => EF.Functions.Random())
                 .FirstOrDefaultAsync();
+
+#pragma warning restore EntityFramework.ClientSideDbFunctionCall
         }
     }
 }
