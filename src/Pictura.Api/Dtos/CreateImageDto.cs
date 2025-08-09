@@ -8,6 +8,6 @@ namespace Pictura.Api.Dtos
         [RegularExpression("https?://.+", ErrorMessage = "Invalid URL format. Must start with http:// or https://.")]
         public required string Url { get; init; }
         
-        public required IEnumerable<string> Tags { get; init; } = [];
+        public required IList<string> Tags { get; init; } = [];
     }
 }

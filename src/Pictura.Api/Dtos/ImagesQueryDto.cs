@@ -15,6 +15,6 @@ namespace Pictura.Api.Dtos
 
         [FromQuery(Name = "tags")]
         [ModelBinder(BinderType = typeof(ModelBinders.CommaSeparatedModelBinder))]
-        public IEnumerable<string> Tags { get; init; } = [];
+        public IList<string> Tags { get; init; } = [];
     }
 }
