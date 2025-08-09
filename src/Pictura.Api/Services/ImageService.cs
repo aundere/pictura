@@ -15,34 +15,50 @@ namespace Pictura.Api.Services
             this._logger = logger;
         }
         
-        public async Task<ImageEntity> CreateImageAsync(string url, IEnumerable<string> tags)
+        private IQueryable<ImageEntity> ApplyTagFilter(IQueryable<ImageEntity> query, IList<string> tags)
         {
-            var tagList = tags.ToList();
-            
+            return tags.Count != 0
+                ? query.Where(x => tags.All(tag => x.Tags.Any(t => t.Name == tag)))
+                : query;
+        }
+        
+        private async Task<List<TagEntity>> GetOrCreateTagsAsync(IList<string> tags)
+        {
             var existingTags = await this._db.Tags
-                .Where(t => tagList.Contains(t.Name))
+                .Where(t => tags.Contains(t.Name))
                 .ToListAsync();
 
-            var newTags = tagList
+            var newTags = tags
                 .Except(existingTags.Select(t => t.Name), StringComparer.OrdinalIgnoreCase)
-                .Select(name => new TagEntity { Name = name})
+                .Select(name => new TagEntity { Name = name })
                 .ToList();
 
-            if (newTags.Count != 0)
+            if (newTags.Count <= 0)
             {
-                this._db.Tags.AddRange(newTags);
-                await this._db.SaveChangesAsync();
-                
-                this._logger.LogInformation("Added {NewTagCount} new tags", newTags.Count);
+                // No new tags to add, return existing ones
+                return existingTags.Concat(newTags).ToList();
             }
-            else
-            {
-                this._logger.LogInformation("No new tags to add, using existing tags");
-            }
-
-            var allTags = existingTags.Concat(newTags).ToList();
             
-            var image = new ImageEntity { Url = url, Tags = allTags };
+            this._db.Tags.AddRange(newTags);
+            await this._db.SaveChangesAsync();
+                
+            this._logger.LogInformation("Added {NewTagCount} new tags", newTags.Count);
+
+            return existingTags.Concat(newTags).ToList();
+        }
+        
+        public async Task<ImageEntity?> GetImageByIdAsync(int id)
+        {
+            return await this._db.Images
+                .Include(x => x.Tags)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+        
+        public async Task<ImageEntity> CreateImageAsync(string url, IList<string> tags)
+        {
+            var tagEntities = await this.GetOrCreateTagsAsync(tags);
+
+            var image = new ImageEntity { Url = url, Tags = tagEntities };
             
             this._db.Images.Add(image);
             await this._db.SaveChangesAsync();
@@ -69,18 +85,13 @@ namespace Pictura.Api.Services
             return true;
         }
         
-        public async Task<IEnumerable<ImageEntity>> GetImagesByTagsAsync(int from, int limit, IEnumerable<string> tags)
+        public async Task<IEnumerable<ImageEntity>> GetImagesByTagsAsync(int from, int limit, IList<string> tags)
         {
-            var tagList = tags.ToList();
-            
             var query = this._db.Images
                 .Include(x => x.Tags)
                 .AsQueryable();
-            
-            if (tagList.Count > 0)
-            {
-                query = query.Where(x => tagList.All(r => x.Tags.Any(t => r == t.Name)));
-            }
+
+            query = this.ApplyTagFilter(query, tags);
             
             return await query
                 .OrderBy(x => x.Id)
@@ -89,29 +100,21 @@ namespace Pictura.Api.Services
                 .ToListAsync();
         }
         
-        public async Task<ImageEntity?> GetImageByIdAsync(int id)
+        public async Task<ImageEntity?> GetRandomImageAsync(IList<string> tags)
         {
-            return await this._db.Images
-                .Include(x => x.Tags)
-                .FirstOrDefaultAsync(x => x.Id == id);
-        }
-        
-        public async Task<ImageEntity?> GetRandomImageAsync(IEnumerable<string> tags)
-        {
-            var tagList = tags.ToList();
-
             var query = this._db.Images
                 .Include(x => x.Tags)
                 .AsQueryable();
             
-            if (tagList.Count > 0)
-            {
-                query = query.Where(x => tagList.All(r => x.Tags.Any(t => r == t.Name)));
-            }
+            query = this.ApplyTagFilter(query, tags);
+            
+#pragma warning disable EntityFramework.ClientSideDbFunctionCall // false positive warning (trust me)
             
             return await query
                 .OrderBy(_ => EF.Functions.Random())
                 .FirstOrDefaultAsync();
+
+#pragma warning restore EntityFramework.ClientSideDbFunctionCall
         }
     }
 }

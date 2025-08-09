@@ -3,31 +3,23 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pictura.Api.Data;
 using Pictura.Api.Entities;
+
+#pragma warning disable ClassNeverInstantiated.Global // This class is instantiated by the test framework, not directly in code.
 
 namespace Pictura.Api.Tests.Infrastructure
 {
     public class TestWebApplicationFactory<T> : WebApplicationFactory<T> where T : class
     {
-        private void RemoveDescriptor<TDescriptor>(IServiceCollection services) where TDescriptor : class
-        {
-            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(TDescriptor));
-            
-            if (descriptor != null)
-            {
-                services.Remove(descriptor);
-            }
-        }
-        
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
-                this.RemoveDescriptor<IDbContextOptionsConfiguration<AppDbContext>>(services);
-                this.RemoveDescriptor<DbConnection>(services);
+                services.RemoveAll<DbContextOptions<AppDbContext>>();
+                services.RemoveAll<DbConnection>();
 
                 services.AddSingleton<DbConnection>(_ =>
                 {
@@ -64,6 +56,10 @@ namespace Pictura.Api.Tests.Infrastructure
                     new TagEntity
                     {
                         Name = "test"
+                    },
+                    new TagEntity
+                    {
+                        Name = "tag"
                     }
                 ]
             });
@@ -72,3 +68,5 @@ namespace Pictura.Api.Tests.Infrastructure
         }
     }
 }
+
+#pragma warning restore ClassNeverInstantiated.Global
